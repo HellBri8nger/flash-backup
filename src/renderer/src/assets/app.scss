@@ -1,0 +1,19 @@
+.mainbar {
+  display: flex;
+  align-items: center;
+  //justify-content: center;
+  flex-direction: row-reverse;
+  padding: 1rem;
+
+  border-bottom: 1px solid #2e2e2e;
+
+  * {
+    padding: 0 0.5rem;
+  }
+}
+
+.mantine-Modal-body {
+  button {
+    margin-top: 1rem;
+  }
+}
