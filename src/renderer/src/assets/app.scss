@@ -7,13 +7,27 @@
 
   border-bottom: 1px solid #2e2e2e;
 
-  * {
-    padding: 0 0.5rem;
+  button {
+    margin: 0 1rem;
   }
 }
 
 .mantine-Modal-body {
   button {
     margin-top: 1rem;
+  }
+}
+
+.pathSelector {
+  display: flex;
+
+  .mantine-InputWrapper-root {
+    margin-top: 0.3rem;
+    width: 17.5rem;
+  }
+
+  button {
+    margin-left: 0.5rem;
+    margin-top: 1.85rem;
   }
 }
