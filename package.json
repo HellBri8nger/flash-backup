@@ -21,8 +21,10 @@
     "@mantine/core": "^7.10.2",
     "@mantine/hooks": "^7.10.2",
     "@tabler/icons-react": "^3.6.0",
+    "electron-store": "^8.1.0",
     "electron-updater": "^6.1.7",
-    "sass": "^1.77.6"
+    "sass": "^1.77.6",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",

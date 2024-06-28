@@ -1,6 +1,6 @@
 import '@mantine/core/styles.css'
 import {  MantineProvider } from '@mantine/core'
-import "./assets/global.scss"
+import "./styles/global.scss"
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'
