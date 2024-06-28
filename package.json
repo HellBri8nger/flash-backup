@@ -26,8 +26,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
-    "electron": "^28.2.0",
-    "electron-builder": "^24.9.1",
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3",
     "electron-vite": "^2.0.0",
     "postcss": "^8.4.38",
     "postcss-preset-mantine": "^1.15.0",
