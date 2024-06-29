@@ -1,7 +1,9 @@
 import './styles/addGame.scss'
-import {Button, Modal, TextInput} from "@mantine/core";
-import {useDisclosure} from "@mantine/hooks";
-import {useState} from "react";
+import { Button, Modal, TextInput } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { useState } from "react";
+
+const electronAPI = window.electronAPI
 
 function AddGame(){
   const [opened, { open, close }] = useDisclosure(false)
@@ -10,12 +12,12 @@ function AddGame(){
 
   const handleFolder = async () => {
     const folderPath = await window.electronAPI.folder()
-    setPathValue(folderPath)
+    await path(folderPath)
   }
 
-  const path = async (e) => {
-    setPathValue(e.target.value)
-    if (await window.electronAPI.checkPathExists(e.target.value) !== false){
+  const path = async value => {
+    setPathValue(value)
+    if (await window.electronAPI.checkPathExists(value) !== false){
       setPathError(false)
     }else{
       setPathError("Location doesn't exist")
@@ -31,7 +33,7 @@ function AddGame(){
             label="Path"
             placeholder="Input Save Location"
             value={pathValue}
-            onChange={path}
+            onChange={(e) => path(e.target.value)}
             error={pathError}
           />
           <Button onClick={handleFolder}>Select Folder</Button>

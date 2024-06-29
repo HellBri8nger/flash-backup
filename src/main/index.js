@@ -1,8 +1,8 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import {app, shell, BrowserWindow, ipcMain} from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import Store from "electron-store";
+import { openDialog, electronStoreHandlers } from './ipcHandlers'
 
 
 function createWindow() {
@@ -34,17 +34,10 @@ function createWindow() {
   }
 }
 
-
-async function handleFolderOpen() {
-  const {canceled, filePaths} = await dialog.showOpenDialog({ properties: ['openDirectory'] })
-  if (!canceled){
-    return filePaths[0]
-  }
-}
-
 app.whenReady().then(() => {
-  Store.initRenderer()
-  ipcMain.handle('dialog:openFolder', handleFolderOpen)
+  openDialog()
+  electronStoreHandlers()
+
   electronApp.setAppUserModelId('com.electron')
 
   app.on('browser-window-created', (_, window) => {
