@@ -9,22 +9,12 @@ function Launch({ opened, close }) {
   return (
     <Modal opened={opened} onClose={close} title="Launcher Command" centered>
       <div style={{ position: 'relative', paddingBottom: '3rem' }}>
-        <TextInput
-          readOnly
-          value="launch backup.exe"
-          style={{ marginBottom: '1rem' }}
+        <TextInput readOnly value="launch backup.exe" style={{ marginBottom: '1rem' }}
           rightSection={
-            <IconCopy
-              size={16}
-              style={{ cursor: 'pointer' }}
-              onClick={() => clipboard.copy('launch backup.exe')}
-            />
+            <IconCopy size={16} style={{ cursor: 'pointer' }} onClick={() => clipboard.copy('launch backup.exe')}/>
           }
         />
-        <Button
-          style={{ position: 'absolute', bottom: '1rem', right: '1rem' }}
-          onClick={close}
-        >
+        <Button style={{ position: 'absolute', bottom: '1rem', right: '1rem' }} onClick={close}>
           Done
         </Button>
       </div>

@@ -23,16 +23,15 @@
     "@tabler/icons-react": "^3.6.0",
     "axios": "^1.7.2",
     "body-parser": "^1.20.2",
-    "electron-store": "^8.1.0",
     "electron-updater": "^6.1.7",
     "express": "^4.19.2",
     "sass": "^1.77.6",
+    "sqlite3": "^5.1.7",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
     "electron": "^28.2.0",
-    "electron-builder": "^24.9.1",
     "electron-vite": "^2.0.0",
     "postcss": "^8.4.38",
     "postcss-preset-mantine": "^1.15.0",

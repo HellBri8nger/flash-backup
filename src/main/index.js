@@ -1,38 +1,9 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, shell, BrowserWindow, ipcMain } from 'electron';
 import { join } from 'path';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
-import express from 'express';
-import bodyParser from 'body-parser';
 import icon from '../../resources/icon.png?asset';
-
-
-const expressApp = express();
-const PORT = process.env.PORT || 3000; 
-
-expressApp.use(bodyParser.json());
-
-
-expressApp.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
-
-
-expressApp.post('/cli-arguments', (req, res) => {
-  const { id } = req.body;
-  console.log(`Received game ID: ${id}`);
-  const windows = BrowserWindow.getAllWindows();
-  windows.forEach(win => {
-    win.webContents.send('cli-arguments', { id });
-  });
-  res.sendStatus(200);
-});
-
-
-expressApp.listen(PORT, () => {
-  console.log(`Express server listening on port ${PORT}`);
-});
-
+import { ipcHandlers } from './ipcHandlers'
+import { createDatabase } from './database/databaseHandler'
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -52,6 +23,7 @@ function createWindow() {
   });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
+
     shell.openExternal(details.url);
     return { action: 'deny' };
   });
@@ -64,17 +36,11 @@ function createWindow() {
 }
 
 
-async function handleFolderOpen() {
-  const { canceled, filePaths } = await dialog.showOpenDialog({ properties: ['openDirectory'] });
-  if (!canceled) {
-    return filePaths[0];
-  }
-}
-
-
 app.whenReady().then(() => {
-  ipcMain.handle('dialog:openFolder', handleFolderOpen);
+  ipcHandlers()
   electronApp.setAppUserModelId('com.electron');
+
+  createDatabase(join(app.getPath('appData'), 'flash-backup', 'database.db'))
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window);
