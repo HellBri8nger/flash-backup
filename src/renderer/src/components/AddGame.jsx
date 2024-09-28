@@ -1,9 +1,7 @@
 import './styles/addGame.scss'
 import { Button, Modal, TextInput } from "@mantine/core";
-import { v4 } from 'uuid'
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
-import Launch from "../launch";
 
 const electronAPI = window.electronAPI
 
@@ -13,8 +11,8 @@ function AddGame(){
   const [name, setName] = useState('')
   const [nameError, setNameError] = useState('')
 
-  const [opened, { open, close }] = useDisclosure(false)
-  const [launchOpened, { open: openLaunch, close: closeLaunch }] = useDisclosure(false)
+  const [opened, handleAddGameModal] = useDisclosure(false)
+  const [addGameConfirmationModal, confirmationModal] = useDisclosure(false)
 
   const handleFolder = async () => {
     const folderPath = await electronAPI.folder()
@@ -41,8 +39,13 @@ function AddGame(){
 
   const handleAddGame = async () => {
     if (name !== '' && pathValue !== '') {
-      const gameID = v4() // TODO add logic to add the game into database
-      close()
+      const result = await electronAPI.setData('users', '"name", "path", "command"', `"${name}", "${pathValue}", "null"`)
+      if (result.http_code !== 200){
+        if (result.http_code === 19) setNameError("You already have an item with this name")
+      }else{
+        handleAddGameModal.close()
+        confirmationModal.open()
+      }
     }
     else{
       if (name === '') {
@@ -57,7 +60,7 @@ function AddGame(){
 
   return(
     <div className={"addGame"}>
-      <Modal opened={opened} onClose={close} title="Add Game" className="addGameModal">
+      <Modal opened={opened} onClose={handleAddGameModal.close} title="Add Game" className="addGameModal">
         <TextInput
           label="Name"
           placeholder="Input Name"
@@ -80,8 +83,12 @@ function AddGame(){
         </div>
         <Button onClick={handleAddGame}>Add Game</Button>
       </Modal>
-      <Button onClick={open}>Add New Game</Button>
-      <Launch opened={launchOpened} close={closeLaunch} className="test"/>
+      <Button onClick={handleAddGameModal.open}>Add New Game</Button>
+
+      <Modal opened={addGameConfirmationModal} onClose={confirmationModal.close} title={"Operation Successful"}>
+          <div className="confirmationButtons"> <Button onClick={confirmationModal.close}> Ok </Button> </div>
+      </Modal>
+
     </div>
   )
 }

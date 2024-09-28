@@ -1,5 +1,5 @@
-import {ipcMain, dialog} from "electron"
-import { removeAllData } from './database/databaseHandler'
+import {dialog, ipcMain} from "electron"
+import {removeAllData, setData} from './database/databaseHandler'
 
 async function handleFolderOpen() {
   const {canceled, filePaths} = await dialog.showOpenDialog({ properties: ['openDirectory'] })
@@ -12,4 +12,13 @@ async function handleFolderOpen() {
 export async function ipcHandlers(){
   ipcMain.handle('dialog:openFolder', handleFolderOpen)
   ipcMain.handle('dropTable', removeAllData)
+
+  ipcMain.handle('setData', async (event, ...args) => {
+    try {
+      return await setData(...args);
+    } catch (error) {
+      return error;
+    }
+  });
+
 }

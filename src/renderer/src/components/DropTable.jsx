@@ -54,7 +54,7 @@ export default function DropTable(){
       {showResultModal &&
         <Modal opened={resultModal} onClose={handleResultModal.close} title={result.http_code === 200 ? "Operation Successful" : "Operation Failed"}>
           { result.http_code === 200 ?
-            <div className="confirmationButtons"> <Button>Ok</Button>  </div> :
+            <div className="confirmationButtons"> <Button onClick={handleResultModal.close}>Ok</Button>  </div> :
             <p>Something went wrong, please try again.</p>
           }
         </Modal>

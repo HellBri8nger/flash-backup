@@ -5,5 +5,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   folder: () => ipcRenderer.invoke('dialog:openFolder'),
   checkPathExists: (folderPath) => { return fs.existsSync(folderPath) },
   on: (cli) => { console.log(cli) },
-  dropUsersTable: () => ipcRenderer.invoke("dropTable")
+
+  // Database APIs
+  dropUsersTable: () => ipcRenderer.invoke("dropTable"),
+  setData: (...args) => ipcRenderer.invoke('setData', ...args)
 });
