@@ -68,6 +68,7 @@ function AddGame(){
           onChange={e => handleNameError(e.target.value)}
           error={nameError}
           withAsterisk
+          data-autofocus
         />
 
         <div className="pathSelector">

@@ -13,14 +13,29 @@ export function createDatabase(path){
 }
 
 export function getData(column, value){
-  db.all(`SELECT * FROM users WHERE ${column} = ?`, [value], (err, rows) => {
-    if (err){
-      return {error: err, rows: rows, http_code: err.errno}
-    }else{
-      return {error: err, rows: rows, http_code: 200}
-    }
+  return new Promise((resolve) => {
+    db.all(`SELECT * FROM users WHERE ${column} = ?`, [value], (err, rows) => {
+      if (err){
+          resolve({error: err, rows: rows, http_code: err.errno})
+      }else{
+        resolve({error: err, rows: rows, http_code: 200})
+      }
+    })
   })
 }
+
+export function getAllData(table){
+  return new Promise((resolve) => {
+    db.all(`SELECT * FROM ${table}`, [], (err, rows) => {
+      if (err){
+        resolve({error: err, rows: rows, http_code: err.errno})
+      }else{
+        resolve({error: err, rows: rows, http_code: 200})
+      }
+    })
+  })
+}
+
 
 export function setData(...args) {
   /* This function takes 3 arguments
@@ -29,7 +44,7 @@ export function setData(...args) {
   3. the values
   for the columns and values you can pass in as many arguments as you want surround each one with double quotes and surround the whole argument with either backticks or single quotes
   */
-  
+
   const table_name = args[0];
   const insert_location = args[1];
   const values = args[2];
@@ -47,17 +62,31 @@ export function setData(...args) {
 
 
 export function removeData(column, value){
-  db.run(`DELETE FROM users WHERE ${column} = ?`, [value], (err) => {
-    if (err){
-      return {error: err, http_code: err.errno}
-    }else{
-      return {error: err, http_code: 200}
-    }
+  return new Promise((resolve) => {
+    db.run(`DELETE FROM users WHERE ${column} = ?`, [value], (err) => {
+      if (err){
+        resolve({error: err, http_code: err.errno})
+      }else{
+        resolve({error: err, http_code: 200})
+      }
+    })
   })
 }
 
-export function updateData(){
-  // TODO add functionality to this function
+export function updateData(...args){
+  const table_name = args[1]
+  const new_values = args[2]
+  const id = args[3]
+
+  return new Promise((resolve) => {
+    db.run(`UPDATE ${table_name} SET ${new_values} WHERE id = ?`, [id], (err) => {
+      if (err){
+        resolve({error: err, http_code: err.errno})
+      }else{
+        resolve({error: null, http_code: 200})
+      }
+  })
+  })
 }
 
 export function removeAllData(){
