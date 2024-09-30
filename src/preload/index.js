@@ -1,20 +1,16 @@
-import { contextBridge } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+import { contextBridge, ipcRenderer } from 'electron';
+import fs from 'fs';
 
-// Custom APIs for renderer
-const api = {}
+contextBridge.exposeInMainWorld('electronAPI', {
+  folder: () => ipcRenderer.invoke('dialog:openFolder'),
+  checkPathExists: (folderPath) => { return fs.existsSync(folderPath) },
+  on: (cli) => { console.log(cli) },
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  window.electron = electronAPI
-  window.api = api
-}
+  // Database APIs
+  dropUsersTable: () => ipcRenderer.invoke("dropTable"),
+  setData: (...args) => ipcRenderer.invoke('setData', ...args),
+  updateData: (...args) => ipcRenderer.invoke('updateData', ...args),
+  getData: (column, value) => ipcRenderer.invoke('getData', column, value),
+  getAllData: (table) => ipcRenderer.invoke('getAllData', table),
+  removeData: (column, value) => ipcRenderer.invoke('removeData', column, value)
+});

@@ -1,35 +1,28 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import "./styles/app.scss";
+import AddGame from "./components/AddGame";
+import DropTable from './components/DropTable'
+import ListItems from "./components/ListItems";
+import { Select } from '@mantine/core';
+
+const backup_services = ['Local'];
 
 function App() {
-  const ipcHandle = () => window.electron.ipcRenderer.send('ping')
-
   return (
     <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
+      <div className="mainbar">
+        <AddGame />
+        <Select
+          placeholder="Select Backup Service"
+          data={backup_services}
+          className="serviceDropdown"
+          searchable
+          required
+        />
+        <DropTable/>
       </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-      </div>
-      <Versions></Versions>
+      <ListItems/>
     </>
-  )
+  );
 }
 
-export default App
-
+export default App;

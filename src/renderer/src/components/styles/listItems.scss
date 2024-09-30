@@ -1,0 +1,12 @@
+.items {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #2e2e2e;
+
+  button {
+    gap: 5px;
+  }
+
+}
