@@ -2,6 +2,7 @@ import './styles/addGame.scss'
 import { Button, Modal, TextInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
+import ResultModal from "../utils/resultModal";
 
 const electronAPI = window.electronAPI
 
@@ -13,6 +14,7 @@ function AddGame(){
 
   const [opened, handleAddGameModal] = useDisclosure(false)
   const [addGameConfirmationModal, confirmationModal] = useDisclosure(false)
+  const [showResultModal, setShowResultModal] = useState(false)
 
   const handleFolder = async () => {
     const folderPath = await electronAPI.folder()
@@ -21,8 +23,9 @@ function AddGame(){
 
   const handlePathError = async value => {
     setPathValue(value)
-    if (await electronAPI.checkPathExists(value) !== false){
-      setPathError('')
+
+    if (await electronAPI.checkPathExists(value.trim())){
+      setPathError(null)
     }else{
       setPathError("Location doesn't exist")
     }
@@ -30,28 +33,28 @@ function AddGame(){
 
   const handleNameError = value => {
     setName(value)
-    if (value === ''){
+    if (value.trim() === ''){
       setNameError('Name must not be empty')
     }else{
-      setNameError('')
+      setNameError(null)
     }
   }
 
   const handleAddGame = async () => {
-    if (name !== '' && pathValue !== '') {
-      const result = await electronAPI.setData('users', '"name", "path", "command"', `"${name}", "${pathValue}", "null"`)
+    if (name.trim() !== '' && pathValue.trim() !== '') {
+      const result = await electronAPI.setData('itemData', '"name", "path", "command"', `"${name.trim()}", "${pathValue.trim()}", "null"`)
       if (result.http_code !== 200){
         if (result.http_code === 19) setNameError("You already have an item with this name")
       }else{
         handleAddGameModal.close()
-        confirmationModal.open()
+        setShowResultModal(true)
       }
     }
     else{
-      if (name === '') {
+      if (name.trim() === '') {
         setNameError("Name must not be empty")
       }
-      if (pathValue === '' || pathValue === "Location doesn't exist") {
+      if (pathValue.trim() === '' || pathError === "Location doesn't exist") {
         setPathError('Location must not be empty')
       }
     }
@@ -84,11 +87,11 @@ function AddGame(){
         </div>
         <Button onClick={handleAddGame}>Add Game</Button>
       </Modal>
+
+
       <Button onClick={handleAddGameModal.open}>Add New Game</Button>
 
-      <Modal opened={addGameConfirmationModal} onClose={confirmationModal.close} title={"Operation Successful"}>
-          <div className="confirmationButtons"> <Button onClick={confirmationModal.close}> Ok </Button> </div>
-      </Modal>
+      <ResultModal result={{http_code: 200}} showModal={showResultModal} setShowModal={setShowResultModal}/>
 
     </div>
   )

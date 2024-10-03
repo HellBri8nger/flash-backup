@@ -4,6 +4,7 @@ import {Alert, Button, Modal, TextInput} from "@mantine/core";
 import "./styles/listItems.scss"
 import "./styles/addGame.scss"
 import {useDisclosure} from "@mantine/hooks";
+import ResultModal from "../utils/resultModal";
 
 const electronAPI = window.electronAPI
 
@@ -29,8 +30,8 @@ export default function ListItems(){
 
   const handlePathError = async value => {
     setPathValue(value)
-    if (await electronAPI.checkPathExists(value) !== false){
-      setPathError('')
+    if (await electronAPI.checkPathExists(value.trim()) !== false){
+      setPathError(null)
     }else{
       setPathError("Location doesn't exist")
     }
@@ -38,19 +39,19 @@ export default function ListItems(){
 
   const handleNameError = value => {
     setName(value)
-    if (value === ''){
+    if (value.trim() === ''){
       setNameError('Name must not be empty')
     }else{
-      setNameError('')
+      setNameError(null)
     }
   }
 
   const handleAddGame = async () => {
     if (name !== '' && pathValue !== ''){
-      const result = await electronAPI.getData('name', name)
+      const result = await electronAPI.getData('itemData','name', name.trim())
 
       if (result.rows[0] === undefined){
-        setResult(await electronAPI.updateData('users', `name = '${name}', path = '${pathValue}'`, id))
+        setResult(await electronAPI.updateData('itemData', `name = '${name.trim()}', path = '${pathValue.trim()}'`, id))
         handleEditGameModal.close()
         confirmationModal.open()
         setShowResultModal(true)
@@ -58,10 +59,10 @@ export default function ListItems(){
         setNameError("You already have an item with this name")
       }
     }else{
-      if (name === '') {
+      if (name.trim() === '') {
         setNameError("Name must not be empty")
       }
-      if (pathValue === '' || pathValue === "Location doesn't exist") {
+      if (pathValue.trim() === '' || pathError === "Location doesn't exist") {
         setPathError('Location must not be empty')
       }
     }
@@ -87,7 +88,7 @@ export default function ListItems(){
   }
 
   async function get(){
-    const result = await electronAPI.getAllData('users')
+    const result = await electronAPI.getAllData('itemData')
     setAllItems(result.rows)
   }
   useEffect(() => {
@@ -126,14 +127,7 @@ export default function ListItems(){
         <div className="confirmationButtons"> <Button onClick={confirmationModal.close}> Ok </Button> </div>
       </Modal>
 
-      {showResultModal &&
-        <Modal opened={addGameConfirmationModal} onClose={confirmationModal.close} title={result.http_code === 200 ? "Operation Successful" : "Operation Failed"}>
-          { result.http_code === 200 ?
-            <div className="confirmationButtons"> <Button onClick={() => {confirmationModal.close(); setShowResultModal(false)}} data-autofocus>Ok</Button>  </div> :
-            <p>Something went wrong, please try again.</p>
-          }
-        </Modal>
-      }
+      <ResultModal result={result} showModal={showResultModal} setShowModal={setShowResultModal}/>
 
       <Modal opened={deleteConfirmation} onClose={deleteModal.close} title={"Are you sure?"}>
         <Alert variant="filled" color="red" icon={warningIcon}> You can't undo this action, you'll lose your data </Alert>

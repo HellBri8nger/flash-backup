@@ -1,0 +1,22 @@
+.mantine-Drawer-title {
+  font-weight: bolder;
+  font-size: 1.3rem;
+}
+
+.selectMenu {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 95% 20%;
+  gap: 5px;
+  align-items: center;
+
+  svg {
+    height: 2rem;
+  }
+}
+
+.dropTable {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}

@@ -3,18 +3,22 @@ const sqlite3 = require('sqlite3').verbose()
 
 let db
 
+const createTables = () => {
+  db.run(`CREATE TABLE IF NOT EXISTS itemData(id integer PRIMARY KEY, name, path, command, backupService, UNIQUE(name))`)
+  db.run(`CREATE TABLE IF NOT EXISTS userSettings(id integer PRIMARY KEY, defaultService)`)
+}
+
 export function createDatabase(path){
   if (!fs.existsSync(path)){
     fs.writeFileSync(path, '', {flag: 'w'})
   }
   db = new sqlite3.Database(path, sqlite3.OPEN_READWRITE)
-  db.run(`CREATE TABLE IF NOT EXISTS users(id integer PRIMARY KEY, name, path, command, UNIQUE(name))`)
-  // setData("users", '"name","path","command"', '"test", "new", "path"')
+  createTables()
 }
 
-export function getData(column, value){
+export function getData(table, column, value){
   return new Promise((resolve) => {
-    db.all(`SELECT * FROM users WHERE ${column} = ?`, [value], (err, rows) => {
+    db.all(`SELECT * FROM ${table} WHERE ${column} = ?`, [value], (err, rows) => {
       if (err){
           resolve({error: err, rows: rows, http_code: err.errno})
       }else{
@@ -63,7 +67,7 @@ export function setData(...args) {
 
 export function removeData(column, value){
   return new Promise((resolve) => {
-    db.run(`DELETE FROM users WHERE ${column} = ?`, [value], (err) => {
+    db.run(`DELETE FROM itemData WHERE ${column} = ?`, [value], (err) => {
       if (err){
         resolve({error: err, http_code: err.errno})
       }else{
@@ -90,18 +94,13 @@ export function updateData(...args){
 }
 
 export function removeAllData(){
-  db.run(`DROP TABLE IF EXISTS users`, [], (err) => {
+  db.run(`DROP TABLE IF EXISTS itemData`, [], (err) => {
     if (err){
       return {error:err, http_code: err.errno}
     }
   })
 
-  db.run(`CREATE TABLE IF NOT EXISTS users(id integer PRIMARY KEY, name, path, command, UNIQUE(name))`, [], (err) => {
-    if (err){
-      return {error:err, http_code: err.errno}
-    }
-  })
-
+  createTables()
   return {error: null, http_code: 200}
 
 }

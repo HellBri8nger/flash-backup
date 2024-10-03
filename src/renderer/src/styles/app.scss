@@ -7,4 +7,12 @@
   border-bottom: 1px solid #2e2e2e;
   position: sticky;
   top: 0;
+  gap: 0.2rem;
+
+  button:nth-last-child(1) {
+    margin-right: 0.3rem;
+  }
+
+
+
 }

@@ -7,10 +7,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   on: (cli) => { console.log(cli) },
 
   // Database APIs
-  dropUsersTable: () => ipcRenderer.invoke("dropTable"),
+  dropTable: () => ipcRenderer.invoke("dropTable"),
   setData: (...args) => ipcRenderer.invoke('setData', ...args),
   updateData: (...args) => ipcRenderer.invoke('updateData', ...args),
-  getData: (column, value) => ipcRenderer.invoke('getData', column, value),
+  getData: (table, column, value) => ipcRenderer.invoke('getData' , table, column, value),
   getAllData: (table) => ipcRenderer.invoke('getAllData', table),
   removeData: (column, value) => ipcRenderer.invoke('removeData', column, value)
 });
