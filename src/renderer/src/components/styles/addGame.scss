@@ -17,3 +17,19 @@
     margin-top: 1.85rem;
   }
 }
+
+.backupServiceName {
+  display: flex;
+  gap: 3px;
+
+  h5 {
+    padding: 0;
+    margin: 0;
+    font-size: var(--mantine-font-size-sm);
+  }
+
+  div {
+    color: red;
+  }
+
+}

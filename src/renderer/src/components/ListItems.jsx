@@ -1,10 +1,11 @@
 import {useEffect, useState} from "react";
 import {IconAlertCircle, IconPencil, IconTrash} from "@tabler/icons-react";
-import {Alert, Button, Modal, TextInput} from "@mantine/core";
+import {Alert, Button, Modal, Select, TextInput} from "@mantine/core";
 import "./styles/listItems.scss"
 import "./styles/addGame.scss"
 import {useDisclosure} from "@mantine/hooks";
 import ResultModal from "../utils/resultModal";
+import backup_services from "./backUpServices";
 
 const electronAPI = window.electronAPI
 
@@ -17,6 +18,7 @@ export default function ListItems(){
   const [result, setResult] = useState()
   const [showResultModal, setShowResultModal] = useState(false)
   const [id, setid] = useState('')
+  const [backupValue, setBackupValue] = useState('')
 
   const [opened, handleEditGameModal] = useDisclosure(false)
   const [addGameConfirmationModal, confirmationModal] = useDisclosure(false)
@@ -47,18 +49,21 @@ export default function ListItems(){
   }
 
   const handleAddGame = async () => {
+    // TODO fix minor bug that doesn't allow you to edit the backup service
+
     if (name !== '' && pathValue !== ''){
       const result = await electronAPI.getData('itemData','name', name.trim())
 
       if (result.rows[0] === undefined){
-        setResult(await electronAPI.updateData('itemData', `name = '${name.trim()}', path = '${pathValue.trim()}'`, id))
+        setResult(await electronAPI.updateData('itemData', `name = '${name.trim()}', path = '${pathValue.trim()}', backupService = '${backupValue}'`, id))
         handleEditGameModal.close()
         confirmationModal.open()
         setShowResultModal(true)
       }else{
         setNameError("You already have an item with this name")
       }
-    }else{
+    }
+    else{
       if (name.trim() === '') {
         setNameError("Name must not be empty")
       }
@@ -72,6 +77,7 @@ export default function ListItems(){
     setid(items.id)
     setPathValue(items.path)
     setName(items.name)
+    setBackupValue(items.backupService)
     handleEditGameModal.open()
   }
 
@@ -94,7 +100,6 @@ export default function ListItems(){
   useEffect(() => {
     get()
   })
-
 
   return(
     <>
@@ -120,11 +125,25 @@ export default function ListItems(){
           />
           <Button onClick={handleFolder}>Select Folder</Button>
         </div>
-        <Button onClick={handleAddGame}>Edit Game</Button>
-      </Modal>
 
-      <Modal opened={addGameConfirmationModal} onClose={confirmationModal.close} title={"Updated Successfully"}>
-        <div className="confirmationButtons"> <Button onClick={confirmationModal.close}> Ok </Button> </div>
+        <div className="backupServiceName">
+          <h5>Backup Service</h5>
+          <div>*</div>
+        </div>
+
+        <div className={'backupServiceSelect'}>
+          <Select
+            placeholder="Select Backup Service"
+            data={['Default', ...backup_services]}
+            searchable
+            required
+            allowDeselect={false}
+            value={backupValue}
+            onChange={setBackupValue}
+          />
+        </div>
+
+        <Button onClick={handleAddGame}>Edit Game</Button>
       </Modal>
 
       <ResultModal result={result} showModal={showResultModal} setShowModal={setShowResultModal}/>

@@ -1,11 +1,25 @@
 import fs from "fs"
+import { app } from 'electron'
+import {join} from "path";
+
 const sqlite3 = require('sqlite3').verbose()
 
 let db
 
 const createTables = () => {
+  const path = join(app.getPath('appData'), "flash-backup", "backups")
+
   db.run(`CREATE TABLE IF NOT EXISTS itemData(id integer PRIMARY KEY, name, path, command, backupService, UNIQUE(name))`)
-  db.run(`CREATE TABLE IF NOT EXISTS userSettings(id integer PRIMARY KEY, defaultService)`)
+
+  db.run(`CREATE TABLE IF NOT EXISTS userSettings(id integer PRIMARY KEY, defaultService, localBackupLocation)`, [], () => {
+    db.run(`INSERT OR IGNORE INTO userSettings (id, defaultService) VALUES(1, 'Local') ON CONFLICT(id) DO NOTHING`)
+    db.run(`UPDATE userSettings SET localBackupLocation = ? WHERE id = 1 AND localBackupLocation IS NULL`, [path])
+  })
+
+  if (!fs.existsSync(path)){
+    fs.writeFileSync(path, '', {flag: 'w'})
+  }
+
 }
 
 export function createDatabase(path){
@@ -14,6 +28,7 @@ export function createDatabase(path){
   }
   db = new sqlite3.Database(path, sqlite3.OPEN_READWRITE)
   createTables()
+
 }
 
 export function getData(table, column, value){

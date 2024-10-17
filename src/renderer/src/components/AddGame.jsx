@@ -1,8 +1,9 @@
 import './styles/addGame.scss'
-import { Button, Modal, TextInput } from "@mantine/core";
+import {Button, Modal, Select, TextInput} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 import ResultModal from "../utils/resultModal";
+import backup_services from "./backUpServices";
 
 const electronAPI = window.electronAPI
 
@@ -11,10 +12,11 @@ function AddGame(){
   const [pathError, setPathError] = useState('')
   const [name, setName] = useState('')
   const [nameError, setNameError] = useState('')
+  const [backupValue, setBackupValue] = useState('Default')
 
   const [opened, handleAddGameModal] = useDisclosure(false)
-  const [addGameConfirmationModal, confirmationModal] = useDisclosure(false)
   const [showResultModal, setShowResultModal] = useState(false)
+
 
   const handleFolder = async () => {
     const folderPath = await electronAPI.folder()
@@ -42,7 +44,7 @@ function AddGame(){
 
   const handleAddGame = async () => {
     if (name.trim() !== '' && pathValue.trim() !== '') {
-      const result = await electronAPI.setData('itemData', '"name", "path", "command"', `"${name.trim()}", "${pathValue.trim()}", "null"`)
+      const result = await electronAPI.setData('itemData', '"name", "path", "command", "backupService"', `"${name.trim()}", "${pathValue.trim()}", "null", "${backupValue}"`)
       if (result.http_code !== 200){
         if (result.http_code === 19) setNameError("You already have an item with this name")
       }else{
@@ -59,8 +61,6 @@ function AddGame(){
       }
     }
   }
-
-
   return(
     <div className={"addGame"}>
       <Modal opened={opened} onClose={handleAddGameModal.close} title="Add Game" className="addGameModal">
@@ -73,7 +73,6 @@ function AddGame(){
           withAsterisk
           data-autofocus
         />
-
         <div className="pathSelector">
           <TextInput
             label="Path"
@@ -84,6 +83,24 @@ function AddGame(){
             withAsterisk
           />
           <Button onClick={handleFolder}>Select Folder</Button>
+        </div>
+
+        <div className="backupServiceName">
+          <h5>Backup Service</h5>
+          <div>*</div>
+        </div>
+
+        <div className={'backupServiceSelect'}>
+          <Select
+            placeholder="Select Backup Service"
+            data={['Default', ...backup_services]}
+            searchable
+            required
+            allowDeselect={false}
+            defaultValue={'Default'}
+            value={backupValue}
+            onChange={setBackupValue}
+          />
         </div>
         <Button onClick={handleAddGame}>Add Game</Button>
       </Modal>
