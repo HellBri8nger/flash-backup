@@ -58,11 +58,23 @@ app.whenReady().then(() => {
 });
 
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
+app.on('window-all-closed', (e) => {
+  function preventDefault() {
+    if (!allowCloseGetter()) {
+      e.preventDefault()
+    } else {
+      app.quit()
+    }
   }
-});
+
+  setInterval(preventDefault, 500)
+
+  if (process.platform !== 'darwin') {
+    preventDefault()
+  }
+})
+
+
 
 ipcMain.on('error', (event, error) => {
   console.error('IPC Error:', error);

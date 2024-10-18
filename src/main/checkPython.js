@@ -4,10 +4,12 @@ const fs = require('fs')
 const { exec} = require('child_process')
 const {join} = require('path')
 
+let allowClose = true
+
 export function checkPythonInstallation(path) {
   exec('python --version', (error, stdout, stderr) => {
-    console.log(`stderr: ${stderr} \n stdout: ${stdout} \n error: ${error}`)
     if (stderr && error){
+      allowCloseSetter(false)
 
       exec(`setx PATH "%PATH%${join(path, "python")}"`)
       extractZip('python.zip', path)
@@ -37,9 +39,18 @@ function extractZip(sourceZip, destinationDir) {
       }
     })
 
+    zipfile.on('end', () => {
+      allowCloseSetter(true)
+    });
+
     zipfile.readEntry()
   })
 }
 
+export function allowCloseGetter(){
+  return allowClose
+}
 
-// TODO prevent the app from closing until extraction finishes
+function allowCloseSetter(value){
+  allowClose = value
+}
