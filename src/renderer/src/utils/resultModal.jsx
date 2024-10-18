@@ -1,13 +1,13 @@
 import {Button, Modal, TextInput} from "@mantine/core";
-import {useClipboard, useDisclosure} from "@mantine/hooks";
+import {useDisclosure} from "@mantine/hooks";
 import { useEffect } from "react";
 import "./styles/resultModal.scss"
 
 
-export default function ResultModal({ showModal, setShowModal, result, Component }) {
+export default function ResultModal({ showModal, setShowModal, result, Component, text }) {
   const [opened, { open, close }] = useDisclosure(false)
 
-  const clipboard = useClipboard({ timeout: 500 });
+  if (text === undefined) text = {show: true}
 
   useEffect(() => {
     if (showModal && !opened) open()
@@ -22,7 +22,7 @@ export default function ResultModal({ showModal, setShowModal, result, Component
 
   return (
     <>
-      <Modal opened={opened} onClose={handleClose} title={result?.http_code === 200 ? "Operation Successful" : "Operation Failed"}>
+      <Modal opened={opened} onClose={handleClose} title={result?.http_code === 200 ? text.show ? "Operation Successful" : text.text : "Operation Failed"}>
         {result?.http_code === 200 ?
           <div>
             <ComponentRenderer component={Component}/>
