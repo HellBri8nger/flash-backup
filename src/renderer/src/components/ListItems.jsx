@@ -6,6 +6,7 @@ import "./styles/addGame.scss"
 import {useDisclosure} from "@mantine/hooks";
 import ResultModal from "../utils/resultModal";
 import backup_services from "./backUpServices";
+import CopyCommand from "../utils/copyCommand";
 
 const electronAPI = window.electronAPI
 
@@ -146,7 +147,7 @@ export default function ListItems(){
         <Button onClick={handleAddGame}>Edit Game</Button>
       </Modal>
 
-      <ResultModal result={result} showModal={showResultModal} setShowModal={setShowResultModal}/>
+      <ResultModal result={result} showModal={showResultModal} setShowModal={setShowResultModal} Component={<CopyCommand name={name}/>}/>
 
       <Modal opened={deleteConfirmation} onClose={deleteModal.close} title={"Are you sure?"}>
         <Alert variant="filled" color="red" icon={warningIcon}> You can't undo this action, you'll lose your data </Alert>

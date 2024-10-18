@@ -4,3 +4,5 @@ out
 .idea/
 .DS_Store
 *.log*
+test.js
+test.pyw

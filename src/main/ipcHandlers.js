@@ -1,4 +1,4 @@
-import {dialog, ipcMain} from "electron"
+import {app, dialog, ipcMain} from "electron"
 import {getAllData, getData, removeAllData, removeData, setData, updateData} from './database/databaseHandler'
 
 async function handleFolderOpen() {
@@ -11,6 +11,7 @@ async function handleFolderOpen() {
 
 export async function ipcHandlers(){
   ipcMain.handle('dialog:openFolder', handleFolderOpen)
+  ipcMain.handle('getAppData', async () => app.getPath('appData'));
 
   // Database APIs
   ipcMain.handle('dropTable', removeAllData)

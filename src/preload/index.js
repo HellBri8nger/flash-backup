@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   folder: () => ipcRenderer.invoke('dialog:openFolder'),
   checkPathExists: (folderPath) => { return fs.existsSync(folderPath) },
   on: (cli) => { console.log(cli) },
+  getAppData: async () => await ipcRenderer.invoke('getAppData'),
 
   // Database APIs
   dropTable: () => ipcRenderer.invoke("dropTable"),
@@ -13,4 +14,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getData: (table, column, value) => ipcRenderer.invoke('getData' , table, column, value),
   getAllData: (table) => ipcRenderer.invoke('getAllData', table),
   removeData: (column, value) => ipcRenderer.invoke('removeData', column, value)
-});
+})

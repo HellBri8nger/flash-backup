@@ -5,6 +5,8 @@ import icon from '../../resources/icon.png?asset';
 import { ipcHandlers } from './ipcHandlers'
 import { createDatabase } from './database/databaseHandler'
 import {checkPythonInstallation, allowCloseGetter} from "./checkPython";
+import './backupRequestReciever'
+import receiver from "./backupRequestReciever";
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -45,6 +47,7 @@ app.whenReady().then(() => {
   }
   createDatabase(join(app.getPath('appData'), 'flash-backup', 'database.db'))
   ipcHandlers()
+  receiver()
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window);

@@ -4,6 +4,8 @@ import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 import ResultModal from "../utils/resultModal";
 import backup_services from "./backUpServices";
+import {IconCopy} from "@tabler/icons-react";
+import CopyCommand from "../utils/copyCommand";
 
 const electronAPI = window.electronAPI
 
@@ -16,7 +18,6 @@ function AddGame(){
 
   const [opened, handleAddGameModal] = useDisclosure(false)
   const [showResultModal, setShowResultModal] = useState(false)
-
 
   const handleFolder = async () => {
     const folderPath = await electronAPI.folder()
@@ -108,10 +109,10 @@ function AddGame(){
 
       <Button onClick={handleAddGameModal.open}>Add New Game</Button>
 
-      <ResultModal result={{http_code: 200}} showModal={showResultModal} setShowModal={setShowResultModal}/>
-
+      <ResultModal result={{http_code: 200}} showModal={showResultModal} setShowModal={setShowResultModal} Component={<CopyCommand name={name}/>}/>
     </div>
   )
 }
+
 
 export default AddGame;
