@@ -1,10 +1,13 @@
 import {IconCopy, IconCheck} from "@tabler/icons-react";
 import {TextInput} from "@mantine/core";
 import {useEffect, useState} from "react";
+import {useClipboard} from "@mantine/hooks";
 
 export default function({ name }){
   const [command, setCommand] = useState()
   const [showTick, setShowTick] = useState(false)
+
+  const clipboard = useClipboard({ timeout: 500 });
 
   useEffect(() => {
     if (name){
@@ -12,7 +15,7 @@ export default function({ name }){
         const id =  await window.electronAPI.getData('itemData','name', name)
         const appData = await window.electronAPI.getAppData()
 
-        setCommand(`python "${appData}/flash-backup/emitRequest.py" ${id.rows[0].id}`)
+        setCommand(`pythonw "${appData}/flash-backup/emitRequest.pyw" ${id.rows[0].id} %command%`)
       }
 
       fetchData()
@@ -32,7 +35,7 @@ export default function({ name }){
     <>
       <p style={{textAlign: "center", fontSize: "0.9rem"}}>Copy and paste this into your additional launch options in steam</p>
       <TextInput readOnly value={command || ""}
-                 rightSection={<CopyIcon showTick={showTick} onClick={() => setShowTick(true)}/>}
+                 rightSection={<CopyIcon showTick={showTick} onClick={() => {setShowTick(true); clipboard.copy(command)} }/>}
       />
     </>
   )

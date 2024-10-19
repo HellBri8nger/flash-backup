@@ -87,7 +87,6 @@ export default function ListItems(){
     if (deleteConfirmation){
       setResult( await electronAPI.removeData("id", id))
       deleteModal.close()
-      // setShowResultModal(true)
       setShowDeleteModal(true)
     }else{
       deleteModal.open()
@@ -150,7 +149,7 @@ export default function ListItems(){
 
       <ResultModal result={result} showModal={showResultModal} setShowModal={setShowResultModal} Component={<CopyCommand name={name}/>}/>
       <ResultModal result={result} showModal={showDeleteModal} setShowModal={setShowDeleteModal}/>
-      
+
       <Modal opened={deleteConfirmation} onClose={deleteModal.close} title={"Are you sure?"}>
         <Alert variant="filled" color="red" icon={warningIcon}> You can't undo this action, you'll lose your data </Alert>
         <div className="confirmationButtons">
