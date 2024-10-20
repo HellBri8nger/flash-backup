@@ -17,7 +17,8 @@
   },
   "build": {
     "extraFiles": [
-      "./python.zip"
+      "./python.zip",
+      "./emitRequest.pyw"
     ]
   },
   "dependencies": {

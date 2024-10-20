@@ -17,7 +17,7 @@ const createTables = () => {
   })
 
   if (!fs.existsSync(path)){
-    fs.writeFileSync(path, '', {flag: 'w'})
+    fs.mkdirSync(path)
   }
 
 }
@@ -69,23 +69,28 @@ export function setData(...args) {
   const values = args[2];
 
   return new Promise((resolve) => {
-    db.run(`INSERT INTO ${table_name}(${insert_location}) VALUES(${values})`, [], (err) => {
+    db.run(`INSERT INTO ${table_name}(${insert_location}) VALUES(${values})`, [], function (err) {
       if (err) {
         resolve({ error: err, http_code: err.errno });
       } else {
+        if(table_name === 'itemData') {
+          const lastID = this.lastID
+          createFolder(lastID)
+        }
         resolve({ error: null, http_code: 200 });
       }
-    });
-  });
+    })
+  })
 }
 
 
 export function removeData(column, value){
   return new Promise((resolve) => {
-    db.run(`DELETE FROM itemData WHERE ${column} = ?`, [value], (err) => {
+    db.run(`DELETE FROM itemData WHERE ${column} = ?`, [value], function(err) {
       if (err){
         resolve({error: err, http_code: err.errno})
       }else{
+
         resolve({error: err, http_code: 200})
       }
     })
@@ -98,10 +103,14 @@ export function updateData(...args){
   const id = args[3]
 
   return new Promise((resolve) => {
-    db.run(`UPDATE ${table_name} SET ${new_values} WHERE id = ?`, [id], (err) => {
+    db.run(`UPDATE ${table_name} SET ${new_values} WHERE id = ?`, [id], function(err){
       if (err){
         resolve({error: err, http_code: err.errno})
       }else{
+        if(table_name === 'itemData') {
+          const lastID = this.lastID
+          createFolder(lastID)
+        }
         resolve({error: null, http_code: 200})
       }
   })
@@ -119,3 +128,25 @@ export function removeAllData(){
   return {error: null, http_code: 200}
 
 }
+
+
+function createFolder(lastID){
+  db.all(`SELECT * FROM itemData WHERE id = ${lastID}`, [], (err, rows) => {
+    const { name, backupService }= rows[0]
+
+    if (backupService === 'Default' || 'Local'){
+      db.all(`SELECT * FROM userSettings WHERE id = 1`, [], (err, rows) => {
+        const {defaultService, localBackupLocation} = rows[0]
+
+        if (backupService === 'Local'){
+          if (!fs.existsSync(join(localBackupLocation, name))){fs.mkdirSync(join(localBackupLocation, lastID + "." + name))}
+        }else if (backupService === 'Default' && defaultService === 'Local'){
+          if (!fs.existsSync(join(localBackupLocation, name))) {
+            fs.mkdirSync(join(localBackupLocation, lastID + "." + name))
+          }
+        }
+      })
+    }
+  })
+}
+

