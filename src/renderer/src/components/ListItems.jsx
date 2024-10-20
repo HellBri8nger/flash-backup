@@ -1,9 +1,12 @@
 import {useEffect, useState} from "react";
-import {IconAlertCircle, IconPencil, IconTrash} from "@tabler/icons-react";
-import {Alert, Button, Modal, TextInput} from "@mantine/core";
+import {IconAlertCircle, IconPencil, IconTrash, IconBaselineDensitySmall} from "@tabler/icons-react";
+import {Alert, Button, Menu, Modal, Select, TextInput} from "@mantine/core";
 import "./styles/listItems.scss"
 import "./styles/addGame.scss"
 import {useDisclosure} from "@mantine/hooks";
+import ResultModal from "../utils/resultModal";
+import backup_services from "./backUpServices";
+import CopyCommand from "../utils/copyCommand";
 
 const electronAPI = window.electronAPI
 
@@ -15,11 +18,14 @@ export default function ListItems(){
   const [nameError, setNameError] = useState('')
   const [result, setResult] = useState()
   const [showResultModal, setShowResultModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [id, setid] = useState('')
+  const [backupValue, setBackupValue] = useState('')
 
   const [opened, handleEditGameModal] = useDisclosure(false)
-  const [addGameConfirmationModal, confirmationModal] = useDisclosure(false)
+  const [commandOpened, showCommand] = useDisclosure()
   const [deleteConfirmation, deleteModal] = useDisclosure(false)
+  const [showModal, setShowModal] = useState(false)
   const warningIcon = <IconAlertCircle/>
 
   const handleFolder = async () => {
@@ -29,8 +35,8 @@ export default function ListItems(){
 
   const handlePathError = async value => {
     setPathValue(value)
-    if (await electronAPI.checkPathExists(value) !== false){
-      setPathError('')
+    if (await electronAPI.checkPathExists(value.trim()) !== false){
+      setPathError(null)
     }else{
       setPathError("Location doesn't exist")
     }
@@ -38,30 +44,32 @@ export default function ListItems(){
 
   const handleNameError = value => {
     setName(value)
-    if (value === ''){
+    if (value.trim() === ''){
       setNameError('Name must not be empty')
     }else{
-      setNameError('')
+      setNameError(null)
     }
   }
 
   const handleAddGame = async () => {
+    // TODO fix minor bug that doesn't allow you to edit the backup service
+
     if (name !== '' && pathValue !== ''){
-      const result = await electronAPI.getData('name', name)
+      const result = await electronAPI.getData('itemData','name', name.trim())
 
       if (result.rows[0] === undefined){
-        setResult(await electronAPI.updateData('users', `name = '${name}', path = '${pathValue}'`, id))
+        setResult(await electronAPI.updateData('itemData', `name = '${name.trim()}', path = '${pathValue.trim()}', backupService = '${backupValue}'`, id))
         handleEditGameModal.close()
-        confirmationModal.open()
         setShowResultModal(true)
       }else{
         setNameError("You already have an item with this name")
       }
-    }else{
-      if (name === '') {
+    }
+    else{
+      if (name.trim() === '') {
         setNameError("Name must not be empty")
       }
-      if (pathValue === '' || pathValue === "Location doesn't exist") {
+      if (pathValue.trim() === '' || pathError === "Location doesn't exist") {
         setPathError('Location must not be empty')
       }
     }
@@ -71,6 +79,7 @@ export default function ListItems(){
     setid(items.id)
     setPathValue(items.path)
     setName(items.name)
+    setBackupValue(items.backupService)
     handleEditGameModal.open()
   }
 
@@ -78,8 +87,7 @@ export default function ListItems(){
     if (deleteConfirmation){
       setResult( await electronAPI.removeData("id", id))
       deleteModal.close()
-      setShowResultModal(true)
-      confirmationModal.open()
+      setShowDeleteModal(true)
     }else{
       deleteModal.open()
       setid(itemID)
@@ -87,13 +95,12 @@ export default function ListItems(){
   }
 
   async function get(){
-    const result = await electronAPI.getAllData('users')
+    const result = await electronAPI.getAllData('itemData')
     setAllItems(result.rows)
   }
   useEffect(() => {
     get()
   })
-
 
   return(
     <>
@@ -119,21 +126,29 @@ export default function ListItems(){
           />
           <Button onClick={handleFolder}>Select Folder</Button>
         </div>
+
+        <div className="backupServiceName">
+          <h5>Backup Service</h5>
+          <div>*</div>
+        </div>
+
+        <div className={'backupServiceSelect'}>
+          <Select
+            placeholder="Select Backup Service"
+            data={['Default', ...backup_services]}
+            searchable
+            required
+            allowDeselect={false}
+            value={backupValue}
+            onChange={setBackupValue}
+          />
+        </div>
+
         <Button onClick={handleAddGame}>Edit Game</Button>
       </Modal>
 
-      <Modal opened={addGameConfirmationModal} onClose={confirmationModal.close} title={"Updated Successfully"}>
-        <div className="confirmationButtons"> <Button onClick={confirmationModal.close}> Ok </Button> </div>
-      </Modal>
-
-      {showResultModal &&
-        <Modal opened={addGameConfirmationModal} onClose={confirmationModal.close} title={result.http_code === 200 ? "Operation Successful" : "Operation Failed"}>
-          { result.http_code === 200 ?
-            <div className="confirmationButtons"> <Button onClick={() => {confirmationModal.close(); setShowResultModal(false)}} data-autofocus>Ok</Button>  </div> :
-            <p>Something went wrong, please try again.</p>
-          }
-        </Modal>
-      }
+      <ResultModal result={result} showModal={showResultModal} setShowModal={setShowResultModal} Component={<CopyCommand name={name}/>}/>
+      <ResultModal result={result} showModal={showDeleteModal} setShowModal={setShowDeleteModal}/>
 
       <Modal opened={deleteConfirmation} onClose={deleteModal.close} title={"Are you sure?"}>
         <Alert variant="filled" color="red" icon={warningIcon}> You can't undo this action, you'll lose your data </Alert>
@@ -147,15 +162,29 @@ export default function ListItems(){
         <div className="items" key={items.id}>
           <div>{items.name}</div>
           <div>
-            <Button variant='subtle' color='white' onClick={() => handleEdit(items)}>
-              <IconPencil color='white'/>
-            </Button>
-            <Button variant='subtle' color='red' onClick={() => deleteItem(items.id)}>
-              <IconTrash color="red"/>
-            </Button>
+            <Menu>
+              <Menu.Target><Button>Options</Button></Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Label>Options</Menu.Label>
+
+                <Menu.Item leftSection={<IconPencil/>} onClick={() => handleEdit(items)}> Edit </Menu.Item>
+                <Menu.Item leftSection={<IconTrash/>} onClick={() => deleteItem(items.id)}> Delete </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconBaselineDensitySmall/>} onClick={() => {setShowModal(true); setName(items.name)}}>
+                  Show Command </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </div>
         </div>
       ))}
+
+      <CommandModal setShowModal={setShowModal} showModal={showModal} name={name}/>
     </>
+  )
+}
+
+function CommandModal({showModal, setShowModal, name}){
+  return(
+    <ResultModal result={{http_code: 200}} showModal={showModal} setShowModal={setShowModal} Component={<CopyCommand name={name}/>} text={{show: false, text: "Command"}}/>
   )
 }

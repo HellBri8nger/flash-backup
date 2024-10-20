@@ -1,20 +1,39 @@
 import fs from "fs"
+import { app } from 'electron'
+import {join} from "path";
+
 const sqlite3 = require('sqlite3').verbose()
 
 let db
+
+const createTables = () => {
+  const path = join(app.getPath('appData'), "flash-backup", "backups")
+
+  db.run(`CREATE TABLE IF NOT EXISTS itemData(id integer PRIMARY KEY, name, path, command, backupService, UNIQUE(name))`)
+
+  db.run(`CREATE TABLE IF NOT EXISTS userSettings(id integer PRIMARY KEY, defaultService, localBackupLocation)`, [], () => {
+    db.run(`INSERT OR IGNORE INTO userSettings (id, defaultService) VALUES(1, 'Local') ON CONFLICT(id) DO NOTHING`)
+    db.run(`UPDATE userSettings SET localBackupLocation = ? WHERE id = 1 AND localBackupLocation IS NULL`, [path])
+  })
+
+  if (!fs.existsSync(path)){
+    fs.mkdirSync(path)
+  }
+
+}
 
 export function createDatabase(path){
   if (!fs.existsSync(path)){
     fs.writeFileSync(path, '', {flag: 'w'})
   }
   db = new sqlite3.Database(path, sqlite3.OPEN_READWRITE)
-  db.run(`CREATE TABLE IF NOT EXISTS users(id integer PRIMARY KEY, name, path, command, UNIQUE(name))`)
-  // setData("users", '"name","path","command"', '"test", "new", "path"')
+  createTables()
+
 }
 
-export function getData(column, value){
+export function getData(table, column, value){
   return new Promise((resolve) => {
-    db.all(`SELECT * FROM users WHERE ${column} = ?`, [value], (err, rows) => {
+    db.all(`SELECT * FROM ${table} WHERE ${column} = ?`, [value], (err, rows) => {
       if (err){
           resolve({error: err, rows: rows, http_code: err.errno})
       }else{
@@ -50,23 +69,28 @@ export function setData(...args) {
   const values = args[2];
 
   return new Promise((resolve) => {
-    db.run(`INSERT INTO ${table_name}(${insert_location}) VALUES(${values})`, [], (err) => {
+    db.run(`INSERT INTO ${table_name}(${insert_location}) VALUES(${values})`, [], function (err) {
       if (err) {
         resolve({ error: err, http_code: err.errno });
       } else {
+        if(table_name === 'itemData') {
+          const lastID = this.lastID
+          createFolder(lastID)
+        }
         resolve({ error: null, http_code: 200 });
       }
-    });
-  });
+    })
+  })
 }
 
 
 export function removeData(column, value){
   return new Promise((resolve) => {
-    db.run(`DELETE FROM users WHERE ${column} = ?`, [value], (err) => {
+    db.run(`DELETE FROM itemData WHERE ${column} = ?`, [value], function(err) {
       if (err){
         resolve({error: err, http_code: err.errno})
       }else{
+
         resolve({error: err, http_code: 200})
       }
     })
@@ -79,10 +103,14 @@ export function updateData(...args){
   const id = args[3]
 
   return new Promise((resolve) => {
-    db.run(`UPDATE ${table_name} SET ${new_values} WHERE id = ?`, [id], (err) => {
+    db.run(`UPDATE ${table_name} SET ${new_values} WHERE id = ?`, [id], function(err){
       if (err){
         resolve({error: err, http_code: err.errno})
       }else{
+        if(table_name === 'itemData') {
+          const lastID = this.lastID
+          createFolder(lastID)
+        }
         resolve({error: null, http_code: 200})
       }
   })
@@ -90,18 +118,35 @@ export function updateData(...args){
 }
 
 export function removeAllData(){
-  db.run(`DROP TABLE IF EXISTS users`, [], (err) => {
+  db.run(`DROP TABLE IF EXISTS itemData`, [], (err) => {
     if (err){
       return {error:err, http_code: err.errno}
     }
   })
 
-  db.run(`CREATE TABLE IF NOT EXISTS users(id integer PRIMARY KEY, name, path, command, UNIQUE(name))`, [], (err) => {
-    if (err){
-      return {error:err, http_code: err.errno}
-    }
-  })
-
+  createTables()
   return {error: null, http_code: 200}
 
 }
+
+
+function createFolder(lastID){
+  db.all(`SELECT * FROM itemData WHERE id = ${lastID}`, [], (err, rows) => {
+    const { name, backupService }= rows[0]
+
+    if (backupService === 'Default' || 'Local'){
+      db.all(`SELECT * FROM userSettings WHERE id = 1`, [], (err, rows) => {
+        const {defaultService, localBackupLocation} = rows[0]
+
+        if (backupService === 'Local'){
+          if (!fs.existsSync(join(localBackupLocation, name))){fs.mkdirSync(join(localBackupLocation, lastID + "." + name))}
+        }else if (backupService === 'Default' && defaultService === 'Local'){
+          if (!fs.existsSync(join(localBackupLocation, name))) {
+            fs.mkdirSync(join(localBackupLocation, lastID + "." + name))
+          }
+        }
+      })
+    }
+  })
+}
+

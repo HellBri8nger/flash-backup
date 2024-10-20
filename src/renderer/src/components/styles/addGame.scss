@@ -1,9 +1,3 @@
-.addGame {
-  button {
-    margin: 0 1rem;
-  }
-}
-
 .mantine-Modal-body {
   button {
     margin-top: 1rem;
@@ -22,4 +16,20 @@
     margin-left: 0.5rem;
     margin-top: 1.85rem;
   }
+}
+
+.backupServiceName {
+  display: flex;
+  gap: 3px;
+
+  h5 {
+    padding: 0;
+    margin: 0;
+    font-size: var(--mantine-font-size-sm);
+  }
+
+  div {
+    color: red;
+  }
+
 }
