@@ -85,7 +85,7 @@ export default function ListItems(){
 
   async function deleteItem(itemID){
     if (deleteConfirmation){
-      setResult( await electronAPI.removeData("id", id))
+      setResult( await electronAPI.removeData("itemData", "id", id))
       deleteModal.close()
       setShowDeleteModal(true)
     }else{

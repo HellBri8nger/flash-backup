@@ -22,7 +22,7 @@ export default function DropTable(){
 
   return(
     <>
-      <Button color="red" style={{margin: "0 5px"}} onClick={handleModal.open}>
+      <Button color="red" onClick={handleModal.open}>
         Delete All Data
       </Button>
 

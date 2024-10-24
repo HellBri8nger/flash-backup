@@ -1,7 +1,7 @@
 import "./styles/app.scss";
 import AddGame from "./components/AddGame";
 import ListItems from "./components/ListItems";
-import Settings from "./components/Settings";
+import Settings from "./components/settings/Settings";
 
 
 function App() {

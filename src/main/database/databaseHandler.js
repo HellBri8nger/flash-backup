@@ -11,7 +11,7 @@ const createTables = () => {
 
   db.run(`CREATE TABLE IF NOT EXISTS itemData(id integer PRIMARY KEY, name, path, command, backupService, UNIQUE(name))`)
 
-  db.run(`CREATE TABLE IF NOT EXISTS userSettings(id integer PRIMARY KEY, defaultService, localBackupLocation)`, [], () => {
+  db.run(`CREATE TABLE IF NOT EXISTS userSettings(id integer PRIMARY KEY, defaultService, localBackupLocation, googleDriveToken)`, [], () => {
     db.run(`INSERT OR IGNORE INTO userSettings (id, defaultService) VALUES(1, 'Local') ON CONFLICT(id) DO NOTHING`)
     db.run(`UPDATE userSettings SET localBackupLocation = ? WHERE id = 1 AND localBackupLocation IS NULL`, [path])
   })
@@ -84,9 +84,9 @@ export function setData(...args) {
 }
 
 
-export function removeData(column, value){
+export function removeData(table, column, value){
   return new Promise((resolve) => {
-    db.run(`DELETE FROM itemData WHERE ${column} = ?`, [value], function(err) {
+    db.run(`DELETE FROM ${table} WHERE ${column} = ?`, [value], function(err) {
       if (err){
         resolve({error: err, http_code: err.errno})
       }else{

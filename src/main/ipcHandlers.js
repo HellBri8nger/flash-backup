@@ -1,8 +1,14 @@
 import {app, dialog, ipcMain} from "electron"
 import {getAllData, getData, removeAllData, removeData, setData, updateData} from './database/databaseHandler'
+import {authenticateDrive} from "./backup services/googleDrive";
 
-async function handleFolderOpen() {
-  const {canceled, filePaths} = await dialog.showOpenDialog({ properties: ['openDirectory'] })
+async function handleFolderOpen(isFile) {
+  let properties = ['']
+
+  if (isFile) properties = ['openFile']
+  else properties = ['openDirectory']
+
+  const {canceled, filePaths} = await dialog.showOpenDialog({ properties: properties })
   if (!canceled){
     return filePaths[0]
   }
@@ -10,7 +16,7 @@ async function handleFolderOpen() {
 
 
 export async function ipcHandlers(){
-  ipcMain.handle('dialog:openFolder', handleFolderOpen)
+  ipcMain.handle('dialog:openFolder', (event, isFile) => handleFolderOpen(isFile))
   ipcMain.handle('getAppData', async () => app.getPath('appData'));
 
   // Database APIs
@@ -27,7 +33,10 @@ export async function ipcHandlers(){
   ipcMain.handle('updateData', async (...args) => {
     return await updateData(...args)
   })
-  ipcMain.handle('removeData', async (event, column, value) => {
-    return await removeData(column, value)
+  ipcMain.handle('removeData', async (event, table, column, value) => {
+    return await removeData(table, column, value)
   })
+
+  // Google drive APIs
+  ipcMain.handle('authenticateDrive', async (event, credentialsPath) => authenticateDrive(credentialsPath))
 }
