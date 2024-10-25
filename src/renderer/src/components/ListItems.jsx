@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {IconAlertCircle, IconPencil, IconTrash, IconBaselineDensitySmall} from "@tabler/icons-react";
+import {IconAlertCircle, IconPencil, IconTrash, IconBaselineDensitySmall, IconFileExport} from "@tabler/icons-react";
 import {Alert, Button, Menu, Modal, Select, TextInput} from "@mantine/core";
 import "./styles/listItems.scss"
 import "./styles/addGame.scss"
@@ -171,7 +171,9 @@ export default function ListItems(){
                 <Menu.Item leftSection={<IconTrash/>} onClick={() => deleteItem(items.id)}> Delete </Menu.Item>
                 <Menu.Item
                   leftSection={<IconBaselineDensitySmall/>} onClick={() => {setShowModal(true); setName(items.name)}}>
-                  Show Command </Menu.Item>
+                  Show Command
+                </Menu.Item>
+                <Menu.Item leftSection={<IconFileExport/>} onClick={() => callBackup(items.id)}>Backup Manually</Menu.Item>
               </Menu.Dropdown>
             </Menu>
           </div>
@@ -187,4 +189,9 @@ function CommandModal({showModal, setShowModal, name}){
   return(
     <ResultModal result={{http_code: 200}} showModal={showModal} setShowModal={setShowModal} Component={<CopyCommand name={name}/>} text={{show: false, text: "Command"}}/>
   )
+}
+
+async function callBackup(id){
+  const { manualBackup } = window.electronAPI
+  await manualBackup(id)
 }

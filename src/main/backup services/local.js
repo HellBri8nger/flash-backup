@@ -2,6 +2,7 @@ import {getData} from "../database/databaseHandler"
 import {Notification} from 'electron'
 import zipFolder from "../utils/zipFolder"
 import {join} from "path";
+import fs from "fs";
 
 export default async function LocalBackup(gameId){
   const data = await getData('itemData', "id", gameId)
@@ -10,6 +11,10 @@ export default async function LocalBackup(gameId){
 
   let backupLocation = await getData('userSettings', "id", 1)
   backupLocation = join(backupLocation.rows[0].localBackupLocation, `${gameId}.${gameName}`)
+
+  if (!fs.existsSync(backupLocation)){
+    fs.mkdirSync(backupLocation)
+  }
 
   zipFolder(currentLocation, backupLocation)
     .then(() => new Notification({title: "Backup Completed", body:""}).show())

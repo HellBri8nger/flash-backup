@@ -1,4 +1,4 @@
-import {Badge, Button, Modal, TextInput} from "@mantine/core";
+import {Badge, Button, TextInput} from "@mantine/core";
 import {useEffect, useState} from "react";
 import {IconCheck} from "@tabler/icons-react";
 import "../styles/googleDrive.scss";
@@ -25,7 +25,7 @@ export default function GoogleDrive({ backupValue, allowClose, setAllowClose }){
   }
 
   const removeOldToken = async () => {
-    await updateData('userSettings', `googleDriveToken = ${null}`, 1)
+    await updateData('userSettings', `googleDriveToken = ${null}, googleDriveCredentials = ${null}`, 1)
     setShow(true)
   }
 

@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   checkPathExists: (folderPath) => { return fs.existsSync(folderPath) },
   on: (cli) => { console.log(cli) },
   getAppData: async () => await ipcRenderer.invoke('getAppData'),
+  manualBackup: (id) => ipcRenderer.invoke('manualBackup', id),
 
   // Database APIs
   dropTable: () => ipcRenderer.invoke("dropTable"),

@@ -1,6 +1,7 @@
 import {app, dialog, ipcMain} from "electron"
 import {getAllData, getData, removeAllData, removeData, setData, updateData} from './database/databaseHandler'
 import {authenticateDrive} from "./backup services/googleDrive";
+import {callBackupService} from "./backupRequestReciever";
 
 async function handleFolderOpen(isFile) {
   let properties = ['']
@@ -18,6 +19,7 @@ async function handleFolderOpen(isFile) {
 export async function ipcHandlers(){
   ipcMain.handle('dialog:openFolder', (event, isFile) => handleFolderOpen(isFile))
   ipcMain.handle('getAppData', async () => app.getPath('appData'));
+  ipcMain.handle('manualBackup', async (event, id) => callBackupService(id))
 
   // Database APIs
   ipcMain.handle('dropTable', removeAllData)

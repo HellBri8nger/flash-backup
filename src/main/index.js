@@ -6,7 +6,7 @@ import { ipcHandlers } from './ipcHandlers'
 import { createDatabase } from './database/databaseHandler'
 import {checkPythonInstallation, allowCloseGetter} from "./checkPython";
 import './backupRequestReciever'
-import receiver from "./backupRequestReciever";
+import { receiver } from "./backupRequestReciever";
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -76,8 +76,6 @@ app.on('window-all-closed', (e) => {
     preventDefault()
   }
 })
-
-
 
 ipcMain.on('error', (event, error) => {
   console.error('IPC Error:', error);

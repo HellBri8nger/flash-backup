@@ -45,7 +45,7 @@ function AddGame(){
 
   const handleAddGame = async () => {
     if (name.trim() !== '' && pathValue.trim() !== '') {
-      const result = await electronAPI.setData('itemData', '"name", "path", "command", "backupService"', `"${name.trim()}", "${pathValue.trim()}", "null", "${backupValue}"`)
+      const result = await electronAPI.setData('itemData', '"name", "path", "backupService"', `"${name.trim()}", "${pathValue.trim()}", "${backupValue}"`)
       if (result.http_code !== 200){
         if (result.http_code === 19) setNameError("You already have an item with this name")
       }else{

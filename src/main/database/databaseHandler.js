@@ -9,9 +9,9 @@ let db
 const createTables = () => {
   const path = join(app.getPath('appData'), "flash-backup", "backups")
 
-  db.run(`CREATE TABLE IF NOT EXISTS itemData(id integer PRIMARY KEY, name, path, command, backupService, UNIQUE(name))`)
+  db.run(`CREATE TABLE IF NOT EXISTS itemData(id integer PRIMARY KEY, name, path, backupService, googleDriveFolderID, UNIQUE(name))`)
 
-  db.run(`CREATE TABLE IF NOT EXISTS userSettings(id integer PRIMARY KEY, defaultService, localBackupLocation, googleDriveToken)`, [], () => {
+  db.run(`CREATE TABLE IF NOT EXISTS userSettings(id integer PRIMARY KEY, defaultService, localBackupLocation, googleDriveToken, googleDriveCredentials, googleDriveMainFolder)`, [], () => {
     db.run(`INSERT OR IGNORE INTO userSettings (id, defaultService) VALUES(1, 'Local') ON CONFLICT(id) DO NOTHING`)
     db.run(`UPDATE userSettings SET localBackupLocation = ? WHERE id = 1 AND localBackupLocation IS NULL`, [path])
   })
@@ -73,10 +73,6 @@ export function setData(...args) {
       if (err) {
         resolve({ error: err, http_code: err.errno });
       } else {
-        if(table_name === 'itemData') {
-          const lastID = this.lastID
-          createFolder(lastID)
-        }
         resolve({ error: null, http_code: 200 });
       }
     })
@@ -90,7 +86,6 @@ export function removeData(table, column, value){
       if (err){
         resolve({error: err, http_code: err.errno})
       }else{
-
         resolve({error: err, http_code: 200})
       }
     })
@@ -107,10 +102,6 @@ export function updateData(...args){
       if (err){
         resolve({error: err, http_code: err.errno})
       }else{
-        if(table_name === 'itemData') {
-          const lastID = this.lastID
-          createFolder(lastID)
-        }
         resolve({error: null, http_code: 200})
       }
   })
@@ -127,26 +118,5 @@ export function removeAllData(){
   createTables()
   return {error: null, http_code: 200}
 
-}
-
-
-function createFolder(lastID){
-  db.all(`SELECT * FROM itemData WHERE id = ${lastID}`, [], (err, rows) => {
-    const { name, backupService }= rows[0]
-
-    if (backupService === 'Default' || 'Local'){
-      db.all(`SELECT * FROM userSettings WHERE id = 1`, [], (err, rows) => {
-        const {defaultService, localBackupLocation} = rows[0]
-
-        if (backupService === 'Local'){
-          if (!fs.existsSync(join(localBackupLocation, name))){fs.mkdirSync(join(localBackupLocation, lastID + "." + name))}
-        }else if (backupService === 'Default' && defaultService === 'Local'){
-          if (!fs.existsSync(join(localBackupLocation, name))) {
-            fs.mkdirSync(join(localBackupLocation, lastID + "." + name))
-          }
-        }
-      })
-    }
-  })
 }
 

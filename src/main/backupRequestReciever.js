@@ -2,11 +2,12 @@ import express from 'express'
 import { getData } from "./database/databaseHandler"
 import { Notification } from "electron";
 import LocalBackup from "./backup services/local";
+import {driveBackup} from "./backup services/googleDrive";
 
 const app = express()
 const port = 14004
 
-export default function receiver(){
+export function receiver(){
   app.use(express.urlencoded({extended: true}))
 
   app.post('/',async(req, res) => {
@@ -19,7 +20,7 @@ export default function receiver(){
         body: "The game that you just launched hasn't been found in flash-backup"
       }).show()
     }else{
-      await callBackupService(idData.rows[0].backupService, idData.rows[0].id)
+      await callBackupService(idData.rows[0].id, idData.rows[0].backupService)
     }
 
     res.sendStatus(200)
@@ -31,15 +32,24 @@ export default function receiver(){
 
 }
 
-async function callBackupService(backupService, id, backupLocation){
+export async function callBackupService(id, backupService, backupLocation){
+  if(!backupService){
+    backupService = await getData('itemData', "id", id)
+    backupService = backupService.rows[0].backupService
+  }
+
   switch (backupService){
     case "Default":
       const service = await getData("userSettings", "id", 1)
-      await callBackupService(service.rows[0].defaultService, id, service.rows[0].localBackupLocation)
+      await callBackupService(id, service.rows[0].defaultService, service.rows[0].localBackupLocation)
       break
 
     case "Local":
       await LocalBackup(id, backupLocation)
+      break
+
+    case "Google Drive":
+      await driveBackup(id)
       break
   }
 }
