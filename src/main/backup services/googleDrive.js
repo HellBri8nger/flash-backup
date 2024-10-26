@@ -5,6 +5,7 @@ import {google} from "googleapis";
 import zipFolder from "../utils/zipFolder";
 import fs from "fs";
 import {join} from "path";
+import showNotification from "../utils/showNotification";
 
 
 export async function authenticateDrive(credentialsPath){
@@ -43,11 +44,14 @@ export async function driveBackup(id) {
       try {
         const response = await drive.files.create({requestBody: folderMetaData, fields: 'id'})
         await updateData("", "userSettings", `googleDriveMainFolder = '${response.data.id}'`, 1)
-      }catch (err) {new Notification({title: "Something went wrong", body: err}).show(); return}
+      }catch (err) {
+        showNotification("Something went wrong", err)
+        return
+      }
     }
 
     await backup(id, drive)
-  }else new Notification({title: "You didn't set up your Google Drive API", body: "Open settings to setup one now "}.show())
+  }else showNotification("You didn't set up your Google Drive API", "Open settings to setup one now ")
 }
 
 async function backup(id, drive){
@@ -64,14 +68,14 @@ async function backup(id, drive){
         data.rows[0].googleDriveFolderID = response.data.id
       }catch (err) {
         if(err.code === 404){
-          new Notification({title: "Parent Folder not found", body: "please try again"}).show()
+          showNotification("Parent Folder not found", "please try again")
           await updateData("", 'userSettings', `googleDriveMainFolder = ${null}`, 1)
           await updateData("", 'itemData', `googleDriveFolderID = ${null}`, id)
           return
-        }else {new Notification({title: "Something went wrong", body: err}).show(); return}
+        }else showNotification("Something went wrong", err)
       }
     }
-  }catch (err) {new Notification({title: "Something went wrong", body: err}).show(); return}
+  }catch (err) {showNotification("Something went wrong", err)}
 
   zipFolder(data.rows[0].path, data.rows[0].path)
     .then(async (zipName) => {
@@ -82,15 +86,13 @@ async function backup(id, drive){
         await drive.files.create({requestBody, media: media})
         await fs.unlink(join(data.rows[0].path, zipName), () => {})
 
-        new Notification({title: "Backup Completed", body: ""}).show()
+        showNotification("Backup Completed", "")
       } catch (err) {
         if(err.code === 404){
           await fs.unlink(join(data.rows[0].path, zipName), () => {})
-          new Notification({title: "Parent Folder not found", body: "please try again"}).show()
+          showNotification("Parent Folder not found", "please try again")
           await updateData("", 'itemData', `googleDriveFolderID = ${null}`, id)
-          // add return if you write more logic after this function
-
-        }else new Notification({title: "Something went wrong", body: err}).show()
+        }else showNotification("Something went wrong", err)
       }
     })
     .catch((err) => {console.log(err)})

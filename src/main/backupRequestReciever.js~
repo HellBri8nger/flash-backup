@@ -3,7 +3,6 @@ import { getData } from "./database/databaseHandler"
 import { Notification } from "electron";
 import LocalBackup from "./backup services/local";
 import {driveBackup} from "./backup services/googleDrive";
-import showNotification from "./utils/showNotification";
 
 const app = express()
 const port = 14004
@@ -16,7 +15,10 @@ export function receiver(){
     const idData = await getData('itemData', "id", id)
 
     if (idData.rows.length < 1){
-      showNotification("No game found", "The game that you just launched hasn't been found in Flash Backup")
+      new Notification({
+        title: "No game found",
+        body: "The game that you just launched hasn't been found in flash-backup"
+      }).show()
     }else{
       await callBackupService(idData.rows[0].id, idData.rows[0].backupService)
     }

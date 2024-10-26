@@ -15,7 +15,6 @@ export default function Settings(){
   const [path, setPath] = useState(null)
   const [pathError, setPathError] = useState(null)
   const [backupValue, setBackupValue] = useState(null)
-  const [allowClose, setAllowClose] = useState(true)
 
   const handleFolder = async () => {
     const folderPath = await electronAPI.folder()
@@ -26,10 +25,8 @@ export default function Settings(){
     setPath(value)
     if (await electronAPI.checkPathExists(value.trim())){
       setPathError(null)
-      setAllowClose(true)
     }else{
       setPathError("Location doesn't exist")
-      setAllowClose(false)
     }
   }
 
@@ -59,7 +56,7 @@ export default function Settings(){
 
   return(
     <>
-      <Drawer opened={settingsDrawer} onClose={allowClose && settingsDrawerHandler.close} title={"Settings"} closeOnClickOutside={allowClose} closeOnEscape={allowClose}>
+      <Drawer opened={settingsDrawer} onClose={settingsDrawerHandler.close} title={"Settings"}>
         <div className="selectMenu">
           <Select
             placeholder="Select Backup Service"
@@ -85,7 +82,7 @@ export default function Settings(){
             />
             <Button onClick={handleFolder}>Select Folder</Button>
           </div>}
-        <GoogleDrive backupValue={backupValue} allowClose={allowClose} setAllowClose={setAllowClose}/>
+        <GoogleDrive backupValue={backupValue}/>
         <Divider/>
         <div className='dropTable'>
           <DropTable/>

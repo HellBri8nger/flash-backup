@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import {IconCheck} from "@tabler/icons-react";
 import "../styles/googleDrive.scss";
 
-export default function GoogleDrive({ backupValue, allowClose, setAllowClose }){
+export default function GoogleDrive({ backupValue }){
   const [path, setPath] = useState('')
   const [pathError, setPathError] = useState('')
   const [show, setShow] = useState(false)
@@ -19,9 +19,9 @@ export default function GoogleDrive({ backupValue, allowClose, setAllowClose }){
     setPath(value)
 
     if (value.slice(-5) === ".json"){
-      if (await checkPathExists(value.trim())){ setPathError(null); setAllowClose(true) }
-      else{ setPathError("Location doesn't exist"); setAllowClose(false) }}
-    else { setPathError("This isn't a .json file"); setAllowClose(false) }
+      if (await checkPathExists(value.trim())){ setPathError(null)}
+      else{ setPathError("Location doesn't exist") }}
+    else { setPathError("This isn't a .json file") }
   }
 
   const removeOldToken = async () => {
@@ -34,7 +34,7 @@ export default function GoogleDrive({ backupValue, allowClose, setAllowClose }){
       const { googleDriveToken } = result.rows[0]
       if (!googleDriveToken){
         setShow(true)
-        if (path === "") {setPathError("Location doesn't exist"); setAllowClose(false)}
+        if (path === "") {setPathError("Location doesn't exist")}
       }else setShow(false)
     })
 

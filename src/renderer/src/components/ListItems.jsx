@@ -52,8 +52,6 @@ export default function ListItems(){
   }
 
   const handleAddGame = async () => {
-    // TODO fix minor bug that doesn't allow you to edit the backup service
-
     if (name !== '' && pathValue !== ''){
       const result = await electronAPI.getData('itemData','name', name.trim())
 
@@ -62,7 +60,13 @@ export default function ListItems(){
         handleEditGameModal.close()
         setShowResultModal(true)
       }else{
-        setNameError("You already have an item with this name")
+        if (result.rows[0].id === id){
+          setResult(await electronAPI.updateData('itemData', `name = '${name.trim()}', path = '${pathValue.trim()}', backupService = '${backupValue}'`, id))
+          handleEditGameModal.close()
+          setShowResultModal(true)
+        }else{
+          setNameError("You already have an item with this name")
+        }
       }
     }
     else{

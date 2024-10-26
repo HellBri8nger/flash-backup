@@ -4,7 +4,6 @@ import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 import ResultModal from "../utils/resultModal";
 import backup_services from "./backUpServices";
-import {IconCopy} from "@tabler/icons-react";
 import CopyCommand from "../utils/copyCommand";
 
 const electronAPI = window.electronAPI
