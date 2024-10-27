@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   on: (cli) => { console.log(cli) },
   getAppData: async () => await ipcRenderer.invoke('getAppData'),
   manualBackup: (id) => ipcRenderer.invoke('manualBackup', id),
+  shellOpen: (link) => ipcRenderer.invoke('shellOpen', link),
 
   // Database APIs
   dropTable: () => ipcRenderer.invoke("dropTable"),

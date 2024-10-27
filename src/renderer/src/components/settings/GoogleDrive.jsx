@@ -1,6 +1,6 @@
-import {Badge, Button, TextInput} from "@mantine/core";
+import {Alert, Badge, Button, TextInput} from "@mantine/core";
 import {useEffect, useState} from "react";
-import {IconCheck} from "@tabler/icons-react";
+import {IconCheck, IconInfoCircle} from "@tabler/icons-react";
 import "../styles/googleDrive.scss";
 
 export default function GoogleDrive({ backupValue }){
@@ -8,7 +8,8 @@ export default function GoogleDrive({ backupValue }){
   const [pathError, setPathError] = useState('')
   const [show, setShow] = useState(false)
 
-  const { checkPathExists, folder, getData, updateData} = window.electronAPI
+  const { checkPathExists, folder, getData, updateData, shellOpen} = window.electronAPI
+  const icon = <IconInfoCircle />
 
   async function getCredentials(){
     const folderPath = await folder(true)
@@ -56,6 +57,11 @@ export default function GoogleDrive({ backupValue }){
             />
             <Button style={{width: "60%", marginTop: "24px"}} onClick={() => getCredentials(setPath)}>Select Credentials</Button>
           </div>
+          {show &&
+            <Alert variant="light" color="blue" title="Don't know how to get credentials?" icon={icon} style={{marginTop: "0.5rem", cursor: "pointer"}}
+                   onClick={async () => {await shellOpen("https://www.youtube.com/watch?v=GgT0rO4hZqk"); console.log('h')}}>
+              Click Here
+            </Alert>}
           <div style={{display: "flex", justifyContent: "center", margin: "5px"}}>
             {!pathError && <Button onClick={() => authenticate(path, setShow)}> Authenticate </Button>}
           </div>

@@ -1,4 +1,4 @@
-import {app, dialog, ipcMain} from "electron"
+import {app, dialog, ipcMain, shell} from "electron"
 import {getAllData, getData, removeAllData, removeData, setData, updateData} from './database/databaseHandler'
 import {authenticateDrive} from "./backup services/googleDrive";
 import {callBackupService} from "./backupRequestReciever";
@@ -15,11 +15,14 @@ async function handleFolderOpen(isFile) {
   }
 }
 
+function shellOpen(link){shell.openExternal(link)}
+
 
 export async function ipcHandlers(){
   ipcMain.handle('dialog:openFolder', (event, isFile) => handleFolderOpen(isFile))
   ipcMain.handle('getAppData', async () => app.getPath('appData'));
   ipcMain.handle('manualBackup', async (event, id) => callBackupService(id))
+  ipcMain.handle('shellOpen', async (event, link) => shellOpen(link))
 
   // Database APIs
   ipcMain.handle('dropTable', removeAllData)

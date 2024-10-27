@@ -1,0 +1,37 @@
+.contact {
+  bottom: 0;
+  position: absolute;
+  width: 90%;
+}
+
+.title {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.icons {
+  padding: 0.2rem;
+  opacity: 80%;
+  display: flex;
+  gap: 1rem;
+}
+
+.kofiLogo {
+  height: 5rem;
+  width: auto;
+  //margin-bottom: 0.5rem;
+}
+
+.iconsParent {
+  display: flex;
+  justify-content: space-evenly;
+  margin: 0.5rem;
+}
+
+.iconsInner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+}

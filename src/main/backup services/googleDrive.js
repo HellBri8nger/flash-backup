@@ -1,5 +1,4 @@
 import {getData, updateData} from "../database/databaseHandler"
-import {Notification} from 'electron'
 import { authenticate } from '@google-cloud/local-auth'
 import {google} from "googleapis";
 import zipFolder from "../utils/zipFolder";

@@ -6,6 +6,7 @@ import backup_services from "../backUpServices";
 import DropTable from "../DropTable";
 import {useEffect, useState} from "react";
 import GoogleDrive from "./GoogleDrive";
+import Contact from "./Contact";
 
 const electronAPI = window.electronAPI
 
@@ -84,9 +85,8 @@ export default function Settings(){
           </div>}
         <GoogleDrive backupValue={backupValue}/>
         <Divider/>
-        <div className='dropTable'>
-          <DropTable/>
-        </div>
+        <div className='dropTable'><DropTable/></div>
+        <Contact/>
       </Drawer>
 
       <Button onClick={settingsDrawerHandler.open}>
