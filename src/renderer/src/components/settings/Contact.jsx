@@ -24,5 +24,3 @@ export default function Contact() {
     </div>
   )
 }
-
-// TODO add links
