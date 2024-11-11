@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {IconAlertCircle, IconPencil, IconTrash, IconBaselineDensitySmall} from "@tabler/icons-react";
+import {IconAlertCircle, IconPencil, IconTrash, IconBaselineDensitySmall, IconFileExport} from "@tabler/icons-react";
 import {Alert, Button, Menu, Modal, Select, TextInput} from "@mantine/core";
 import "./styles/listItems.scss"
 import "./styles/addGame.scss"
@@ -52,8 +52,6 @@ export default function ListItems(){
   }
 
   const handleAddGame = async () => {
-    // TODO fix minor bug that doesn't allow you to edit the backup service
-
     if (name !== '' && pathValue !== ''){
       const result = await electronAPI.getData('itemData','name', name.trim())
 
@@ -62,7 +60,13 @@ export default function ListItems(){
         handleEditGameModal.close()
         setShowResultModal(true)
       }else{
-        setNameError("You already have an item with this name")
+        if (result.rows[0].id === id){
+          setResult(await electronAPI.updateData('itemData', `name = '${name.trim()}', path = '${pathValue.trim()}', backupService = '${backupValue}'`, id))
+          handleEditGameModal.close()
+          setShowResultModal(true)
+        }else{
+          setNameError("You already have an item with this name")
+        }
       }
     }
     else{
@@ -85,7 +89,7 @@ export default function ListItems(){
 
   async function deleteItem(itemID){
     if (deleteConfirmation){
-      setResult( await electronAPI.removeData("id", id))
+      setResult( await electronAPI.removeData("itemData", "id", id))
       deleteModal.close()
       setShowDeleteModal(true)
     }else{
@@ -171,7 +175,9 @@ export default function ListItems(){
                 <Menu.Item leftSection={<IconTrash/>} onClick={() => deleteItem(items.id)}> Delete </Menu.Item>
                 <Menu.Item
                   leftSection={<IconBaselineDensitySmall/>} onClick={() => {setShowModal(true); setName(items.name)}}>
-                  Show Command </Menu.Item>
+                  Show Command
+                </Menu.Item>
+                <Menu.Item leftSection={<IconFileExport/>} onClick={() => callBackup(items.id)}>Backup Manually</Menu.Item>
               </Menu.Dropdown>
             </Menu>
           </div>
@@ -187,4 +193,9 @@ function CommandModal({showModal, setShowModal, name}){
   return(
     <ResultModal result={{http_code: 200}} showModal={showModal} setShowModal={setShowModal} Component={<CopyCommand name={name}/>} text={{show: false, text: "Command"}}/>
   )
+}
+
+async function callBackup(id){
+  const { manualBackup } = window.electronAPI
+  await manualBackup(id)
 }

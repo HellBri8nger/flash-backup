@@ -1,10 +1,12 @@
-import {Button, Drawer, Select, TextInput, Tooltip} from "@mantine/core";
+import {Button, Divider, Drawer, Select, TextInput, Tooltip} from "@mantine/core";
 import {useDisclosure} from "@mantine/hooks";
 import {IconSettings, IconHelpCircleFilled} from "@tabler/icons-react";
-import "./styles/settings.scss"
-import backup_services from "./backUpServices";
-import DropTable from "./DropTable";
+import "../styles/settings.scss"
+import backup_services from "../backUpServices";
+import DropTable from "../DropTable";
 import {useEffect, useState} from "react";
+import GoogleDrive from "./GoogleDrive";
+import Contact from "./Contact";
 
 const electronAPI = window.electronAPI
 
@@ -14,7 +16,6 @@ export default function Settings(){
   const [path, setPath] = useState(null)
   const [pathError, setPathError] = useState(null)
   const [backupValue, setBackupValue] = useState(null)
-  const [allowClose, setAllowClose] = useState(true)
 
   const handleFolder = async () => {
     const folderPath = await electronAPI.folder()
@@ -25,10 +26,8 @@ export default function Settings(){
     setPath(value)
     if (await electronAPI.checkPathExists(value.trim())){
       setPathError(null)
-      setAllowClose(true)
     }else{
       setPathError("Location doesn't exist")
-      setAllowClose(false)
     }
   }
 
@@ -58,11 +57,11 @@ export default function Settings(){
 
   return(
     <>
-      <Drawer opened={settingsDrawer} onClose={allowClose && settingsDrawerHandler.close} title={"Settings"} closeOnClickOutside={allowClose} closeOnEscape={allowClose}>
+      <Drawer opened={settingsDrawer} onClose={settingsDrawerHandler.close} title={"Settings"}>
         <div className="selectMenu">
           <Select
             placeholder="Select Backup Service"
-            data={['Test', ...backup_services]}
+            data={[...backup_services]}
             className="serviceDropdown"
             searchable
             required
@@ -72,7 +71,7 @@ export default function Settings(){
           />
           <HelpCircle/>
         </div>
-        {backupValue === 'Local' ? <div>
+        {backupValue === 'Local' &&
           <div className="pathSelector">
             <TextInput
               label="Backup Location"
@@ -83,11 +82,11 @@ export default function Settings(){
               withAsterisk
             />
             <Button onClick={handleFolder}>Select Folder</Button>
-          </div>
-        </div> : <></>}
-        <div className='dropTable'>
-          <DropTable/>
-        </div>
+          </div>}
+        <GoogleDrive backupValue={backupValue}/>
+        <Divider/>
+        <div className='dropTable'><DropTable/></div>
+        <Contact/>
       </Drawer>
 
       <Button onClick={settingsDrawerHandler.open}>

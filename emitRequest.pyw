@@ -14,8 +14,12 @@ def main():
 
 
 def sendRequest():
-    x = requests.post("http://localhost:14004", {"id": sys.argv[1]})
-    print(x.content)
+    try:
+        x = requests.post("http://localhost:14004", {"id": sys.argv[1]})
+        print(x.content)
+
+    except Exception as err:
+        print(err)
 
 
 if __name__ == '__main__':

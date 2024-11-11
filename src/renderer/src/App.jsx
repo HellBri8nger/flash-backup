@@ -1,7 +1,8 @@
 import "./styles/app.scss";
 import AddGame from "./components/AddGame";
 import ListItems from "./components/ListItems";
-import Settings from "./components/Settings";
+import Settings from "./components/settings/Settings";
+import DonateModal from "./components/DonateModal";
 
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
         <Settings/>
       </div>
       <ListItems/>
+      <DonateModal/>
     </>
   );
 }
