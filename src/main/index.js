@@ -1,6 +1,6 @@
 import { app, shell, BrowserWindow, ipcMain, Tray, Menu} from 'electron'
 import { join } from 'path'
-import icon from "../../sql.ico?asset"
+import icon from "../../icon.ico?asset"
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { ipcHandlers } from './ipcHandlers'
 import { createDatabase } from './database/databaseHandler'

@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getAppData: async () => await ipcRenderer.invoke('getAppData'),
   manualBackup: (id) => ipcRenderer.invoke('manualBackup', id),
   shellOpen: (link) => ipcRenderer.invoke('shellOpen', link),
+  donationTimer: () => ipcRenderer.invoke('donationTimer'),
 
   // Database APIs
   dropTable: () => ipcRenderer.invoke("dropTable"),

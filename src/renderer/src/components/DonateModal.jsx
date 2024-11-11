@@ -6,26 +6,26 @@ import kofi from "./settings/kofi.png";
 
 export default function DonateModal() {
   const [opened, { open, close }] = useDisclosure(false)
-  const {shellOpen} = window.electronAPI
+  const {donationTimer, updateData, getData, shellOpen} = window.electronAPI
 
   useEffect(() => {
-    function showModal() {
-      const timer = localStorage.getItem("modal-timer")
-      const showModalState = localStorage.getItem("showModal")
+    donationTimer()
 
-      if (showModalState === "false") {
+    async function showModal() {
+      const {donationTimer, showDonationModal} = await getData()
+
+      if (showDonationModal === "false") {
         clearInterval(intervalId);
         return;
       }
 
-      if (Number(timer) >= 5760) {
-        localStorage.setItem("modal-timer", "0")
+      if (Number(donationTimer) >= 5760) {
         open()
-      } else {
-        localStorage.setItem("modal-timer", `${Number(timer) + 5}`)
+        await updateData("userSettings", `timer = ${0}, showModalState = ${false}`, 1)
       }
     }
-    const intervalId = setInterval(showModal, 300)
+
+    const intervalId = setInterval(showModal, 300000)
   }, []);
 
   return (

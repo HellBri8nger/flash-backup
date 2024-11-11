@@ -18,7 +18,7 @@
     "extraFiles": [
       "./python.zip",
       "./emitRequest.pyw",
-      "sql.ico"
+      "icon.ico"
     ]
   },
   "dependencies": {

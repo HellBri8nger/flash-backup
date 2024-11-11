@@ -11,7 +11,7 @@ const createTables = () => {
 
   db.run(`CREATE TABLE IF NOT EXISTS itemData(id integer PRIMARY KEY, name, path, backupService, googleDriveFolderID, UNIQUE(name))`)
 
-  db.run(`CREATE TABLE IF NOT EXISTS userSettings(id integer PRIMARY KEY, defaultService, localBackupLocation, googleDriveToken, googleDriveCredentials, googleDriveMainFolder)`, [], () => {
+  db.run(`CREATE TABLE IF NOT EXISTS userSettings(id integer PRIMARY KEY, defaultService, localBackupLocation, googleDriveToken, googleDriveCredentials, googleDriveMainFolder, donationTimer, showDonationModal)`, [], () => {
     db.run(`INSERT OR IGNORE INTO userSettings (id, defaultService) VALUES(1, 'Local') ON CONFLICT(id) DO NOTHING`)
     db.run(`UPDATE userSettings SET localBackupLocation = ? WHERE id = 1 AND localBackupLocation IS NULL`, [path])
   })

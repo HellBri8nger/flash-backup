@@ -15,14 +15,27 @@ async function handleFolderOpen(isFile) {
   }
 }
 
-function shellOpen(link){shell.openExternal(link)}
+function shellOpen(link){shell.openExternal(link).then()}
 
+function donationTimer(){
+  async function updateTimer(){
+    const data = await getData("userSettings", "id", 1)
+    if(data.rows[0].donationTimer === undefined){
+      data.rows[0].donationTimer = 1
+    }
+
+    await updateData("", "userSettings", `donationTimer = ${data.rows[0].donationTimer + 5}`, 1)
+  }
+
+  setInterval(updateTimer, 300000)
+}
 
 export async function ipcHandlers(){
   ipcMain.handle('dialog:openFolder', (event, isFile) => handleFolderOpen(isFile))
   ipcMain.handle('getAppData', async () => app.getPath('appData'));
   ipcMain.handle('manualBackup', async (event, id) => callBackupService(id))
   ipcMain.handle('shellOpen', async (event, link) => shellOpen(link))
+  ipcMain.handle('donationTimer', async () => donationTimer())
 
   // Database APIs
   ipcMain.handle('dropTable', removeAllData)
