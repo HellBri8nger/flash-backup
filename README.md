@@ -3,7 +3,9 @@ Flash Backup Automatically Backups Your Games Locally or to Google Drive Automat
 
 ## Works with
 Steam
+
 Playnite
+
 Normal Shortcuts
 
 https://github.com/user-attachments/assets/dbabce01-7d7c-4a4b-a5c1-63aacd865f7c
